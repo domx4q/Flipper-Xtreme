@@ -1,0 +1,12 @@
+App(
+    appid="bk_forcer",
+    name="Bruteforce",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="keyboard_forcer",
+    requires=[
+        "gui",
+    ],
+    fap_category="Tools",
+    fap_icon="icons/bk_forcer_icon.png",
+    fap_icon_assets="icons",
+)
