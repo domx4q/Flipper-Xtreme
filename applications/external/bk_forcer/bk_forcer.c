@@ -6,6 +6,11 @@
 #include <stdlib.h>
 #include <bk_forcer_icons.h>
 
+#include "helpers/ducky_script.h"
+#include <storage/storage.h>
+
+#define TAG "bk_forcer"
+
 #define PASSGEN_MAX_LENGTH 16
 #define PASSGEN_CHARACTERS_LENGTH (26 * 4)
 
@@ -76,7 +81,7 @@ static void render_callback(Canvas* canvas, void* ctx) {
     canvas_draw_box(canvas, 0, 0, 128, 14);
     canvas_set_color(canvas, ColorWhite);
     canvas_set_font(canvas, FontPrimary);
-    canvas_draw_str(canvas, 2, 11, "Password Generator");
+    canvas_draw_str(canvas, 2, 11, "Bruteforcer");
 
     canvas_set_color(canvas, ColorBlack);
     canvas_draw_str_aligned(canvas, 64, 35, AlignCenter, AlignCenter, app->password);
@@ -142,7 +147,64 @@ void update_password(PassGen* app, bool vibro) {
     view_port_update(app->view_port);
 }
 
-int32_t passgenapp(void) {
+bool runDuckyline(char* line) {
+    // create a temp duckyscript
+    bool success = false;
+    Storage* storage = furi_record_open(RECORD_STORAGE);
+    File* file = storage_file_alloc(storage);
+    if(storage_file_open(file, APP_DATA_PATH("ducky_temp.txt"), FSAM_WRITE, FSOM_CREATE_ALWAYS)) {
+        storage_file_write(file, line, strlen(line));
+        FuriString* path = furi_string_alloc();
+        furi_string_set(path, APP_DATA_PATH("ducky_temp.txt"));
+        BadKbScript* script = bad_kb_script_open(path, false);
+        furi_string_free(path);
+        if(script) {
+            // bad_kb_script_start(script);
+            success = true;
+        }
+    }
+    storage_file_close(file);
+    storage_file_free(file);
+    furi_record_close(RECORD_STORAGE);
+    return success;
+}
+
+void changePasswordAsFeebackToString(PassGen* app, char* newPassword) {
+    for(int i = 0; i < app->length; i++) {
+        if(newPassword[i] == '\0') {
+            app->password[i] = '\0';
+            continue;
+        }
+        app->password[i] = newPassword[i];
+    }
+}
+
+char* repeatChar(char c, int times) {
+    char* out = malloc(times);
+    for(int i = 0; i < times; i++) {
+        out[i] = c;
+    }
+    return out;
+}
+
+void enterPassword(PassGen* app) {
+    // use the main/bad_kb_app to enter the password
+    if(false) {
+        changePasswordAsFeebackToString(app, "test");
+        notification_message(app->notify, &PassGen_Alert_vibro);
+    } else {
+        bool status = runDuckyline("STRING test");
+        if(status) {
+            changePasswordAsFeebackToString(app, "Success");
+            notification_message(app->notify, &PassGen_Alert_vibro);
+        } else {
+            changePasswordAsFeebackToString(app, "Failed");
+            notification_message(app->notify, &PassGen_Alert_vibro);
+        }
+    }
+}
+
+int32_t keyboard_forcer(void) {
     PassGen* app = state_init();
     generate(app);
 
@@ -188,7 +250,7 @@ int32_t passgenapp(void) {
                         notification_message(app->notify, &sequence_blink_red_100);
                     break;
                 case InputKeyOk:
-                    update_password(app, true);
+                    enterPassword(app);
                     break;
                 default:
                     break;

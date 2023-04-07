@@ -8,5 +8,7 @@ App(
     ],
     fap_category="Tools",
     fap_icon="icons/bk_forcer_icon.png",
+    stack_size=2 * 1024,
+    order=0,
     fap_icon_assets="icons",
 )
