@@ -22,6 +22,8 @@ DEBUG = 0
 DIST_SUFFIX = f"XFW-0049_{datetime.datetime.today().strftime('%d%m%Y')}"
 DIST_SUFFIX += "-domx4q"
 
+DIST_SUFFIX += "-domx4q"
+
 # Coprocessor firmware
 COPRO_OB_DATA = "scripts/ob.data"
 
