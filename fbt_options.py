@@ -20,7 +20,6 @@ DEBUG = 0
 
 # How about we add the timestamp automatically. Solves some problems
 DIST_SUFFIX = f"XFW-0049_{datetime.datetime.today().strftime('%d%m%Y')}"
-DIST_SUFFIX += "-domx4q"
 
 DIST_SUFFIX += "-domx4q"
 
